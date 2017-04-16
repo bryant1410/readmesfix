@@ -102,25 +102,27 @@ def main():
                         | set(insensitive_glob('**/*.mkdn?', recursive=True)) \
                         | set(insensitive_glob('**/*.mdown', recursive=True)) \
                         | set(insensitive_glob('**/*.markdown', recursive=True))
-                    with fileinput.input(markdown_files_names, inplace=True) as markdown_file:
-                        for line in markdown_file:
-                            if fileinput.isfirstline():
-                                inside_code_block = False
-                            CODE_BLOCK_FENCE.sub(detect_code_block_fence, line)
-                            print(HEADING_WITHOUT_SPACE_RE.sub(heading_fix, line), end='')
+                    if markdown_files_names:  # Gets stuck otherwise
+                        with fileinput.input(markdown_files_names, inplace=True) as markdown_file:
+                            for line in markdown_file:
+                                if fileinput.isfirstline():
+                                    inside_code_block = False
+                                CODE_BLOCK_FENCE.sub(detect_code_block_fence, line)
+                                print(HEADING_WITHOUT_SPACE_RE.sub(heading_fix, line), end='')
 
-                    if repo.index.diff(None):
-                        repo.git.add('.')
-                        repo.git.commit(m="Fix broken Markdown headings")
+                        if repo.index.diff(None):
+                            repo.git.add('.')
+                            repo.git.commit(m="Fix broken Markdown headings")
 
-                        response = requests.post(f'https://api.github.com/repos/{repo_name}/forks', params=AUTH_PARAMS)
-                        response_dict = json.loads(response.text)
-                        if response.status_code == 202:
-                            repo.create_remote('origin', response_dict['ssh_url']).push()
-                            create_pr(repo_name, response_dict["default_branch"],
-                                      f'{response_dict["owner"]["login"]}:{response_dict["default_branch"]}')
-                        else:
-                            print(f"There was an error forking {repo_name}: {response_dict}")
+                            response = requests.post(f'https://api.github.com/repos/{repo_name}/forks',
+                                                     params=AUTH_PARAMS)
+                            response_dict = json.loads(response.text)
+                            if response.status_code == 202:
+                                repo.create_remote('origin', response_dict['ssh_url']).push()
+                                create_pr(repo_name, response_dict["default_branch"],
+                                          f'{response_dict["owner"]["login"]}:{response_dict["default_branch"]}')
+                            else:
+                                print(f"There was an error forking {repo_name}: {response_dict}")
                 except Exception:
                     print(traceback.format_exc())
 
