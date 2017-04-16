@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import argparse
 import contextlib
 import csv
 import fileinput
@@ -73,7 +74,11 @@ def create_pr(repo_name, base_branch, branch_name):
 
 
 def main():
-    with open('top_broken.tsv') as file:
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('--dataset', default='top_broken.tsv')
+    args = arg_parser.parse_args()
+    
+    with open(args.dataset) as file:
         number_of_lines = sum(1 for _ in file)
         file.seek(0)
 
