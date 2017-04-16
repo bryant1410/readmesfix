@@ -22,11 +22,20 @@ AUTH_PARAMS = {'access_token': os.environ[ENV_VAR_NAME]}
 
 HEADING_WITHOUT_SPACE_RE = re.compile(r'^(#+)([^\s#])(.*?)(#+)?$')
 
-FALSE_POSITIVE_RE_LIST = [re.compile(r'^#pragma mark '), re.compile(r'^#define '), re.compile(r'^#include ')]
+CODE_BLOCK_FENCE = re.compile(r'^```')
+
+inside_code_block = False
+
+
+def detect_code_block_fence(match):
+    global inside_code_block
+    inside_code_block = not inside_code_block
+    return match.group(0)
 
 
 def heading_fix(match):
-    if any(regex.match(match.group(0)) for regex in FALSE_POSITIVE_RE_LIST):
+    global inside_code_block
+    if inside_code_block:
         return match.group(0)
     elif match.group(4):
         return f'{match.group(1)} {match.group(2)}{match.group(3)} {match.group(4)}'
@@ -77,7 +86,7 @@ def main():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('--dataset', default='top_broken.tsv')
     args = arg_parser.parse_args()
-    
+
     with open(args.dataset) as file:
         number_of_lines = sum(1 for _ in file)
         file.seek(0)
@@ -93,6 +102,7 @@ def main():
                         | set(insensitive_glob('**/*.markdown', recursive=True))
                     with fileinput.input(markdown_files_names, inplace=True) as markdown_file:
                         for line in markdown_file:
+                            CODE_BLOCK_FENCE.sub(detect_code_block_fence, line)
                             print(HEADING_WITHOUT_SPACE_RE.sub(heading_fix, line), end='')
 
                     if repo.index.diff(None):
