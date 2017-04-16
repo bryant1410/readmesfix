@@ -1,5 +1,7 @@
 Dockerfile
 .dockerignore
 .git
+LICENSE
 README.md
 .python-version
+test.*
