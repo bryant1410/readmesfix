@@ -75,7 +75,7 @@ def main():
                 # noinspection PyBroadException
                 try:
                     repo = git.Repo.clone_from(f'git@github.com:{repo_name}.git', '.', depth=1, origin='upstream')
-                    with fileinput.input(glob.glob('**/*.md', recursive=True), inplace=True) as markdown_file:
+                    with fileinput.input(glob.glob('**/*.[mM][dD]', recursive=True), inplace=True) as markdown_file:
                         for line in markdown_file:
                             print(HEADING_WITHOUT_SPACE_RE.sub(heading_fix, line), end='')
 
