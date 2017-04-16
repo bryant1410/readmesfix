@@ -44,6 +44,13 @@ def pushd(new_dir):
     os.chdir(previous_dir)
 
 
+def insensitive_glob(pattern, *, recursive=False):
+    """From: http://stackoverflow.com/a/10886685/1165181"""
+    def either(char):
+        return f'[{char.lower()}{char.upper()}]' if char.isalpha() else char
+    return glob.glob(''.join(either(char) for char in pattern), recursive=recursive)
+
+
 def create_pr(repo_name, base_branch, branch_name):
     params = {
         'title': f"Fix broken headings in Markdown files",
@@ -75,7 +82,11 @@ def main():
                 # noinspection PyBroadException
                 try:
                     repo = git.Repo.clone_from(f'git@github.com:{repo_name}.git', '.', depth=1, origin='upstream')
-                    with fileinput.input(glob.glob('**/*.[mM][dD]', recursive=True), inplace=True) as markdown_file:
+                    markdown_files_names = set(insensitive_glob('**/*.md', recursive=True)) \
+                        | set(insensitive_glob('**/*.mkdn?', recursive=True)) \
+                        | set(insensitive_glob('**/*.mdown', recursive=True)) \
+                        | set(insensitive_glob('**/*.markdown', recursive=True))
+                    with fileinput.input(markdown_files_names, inplace=True) as markdown_file:
                         for line in markdown_file:
                             print(HEADING_WITHOUT_SPACE_RE.sub(heading_fix, line), end='')
 
