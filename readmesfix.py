@@ -83,6 +83,8 @@ def create_pr(repo_name, base_branch, branch_name):
 
 
 def main():
+    global inside_code_block
+
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('--dataset', default='top_broken.tsv')
     args = arg_parser.parse_args()
@@ -102,6 +104,8 @@ def main():
                         | set(insensitive_glob('**/*.markdown', recursive=True))
                     with fileinput.input(markdown_files_names, inplace=True) as markdown_file:
                         for line in markdown_file:
+                            if fileinput.isfirstline():
+                                inside_code_block = False
                             CODE_BLOCK_FENCE.sub(detect_code_block_fence, line)
                             print(HEADING_WITHOUT_SPACE_RE.sub(heading_fix, line), end='')
 

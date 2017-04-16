@@ -3,5 +3,7 @@ Dockerfile
 .git
 LICENSE
 README.md
+processed
 .python-version
 test.*
+xa*
