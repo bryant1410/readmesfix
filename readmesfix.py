@@ -21,11 +21,11 @@ AUTH_PARAMS = {'access_token': os.environ[ENV_VAR_NAME]}
 
 HEADING_WITHOUT_SPACE_RE = re.compile(r'^(#+)([^\s#])(.*?)(#+)?$')
 
-PRAGMA_MARK_RE = re.compile(r'^#pragma mark ')
+FALSE_POSITIVE_RE_LIST = [re.compile(r'^#pragma mark '), re.compile(r'^#define '), re.compile(r'^#include ')]
 
 
 def heading_fix(match):
-    if PRAGMA_MARK_RE.match(match.group(0)):
+    if any(regex.match(match.group(0)) for regex in FALSE_POSITIVE_RE_LIST):
         return match.group(0)
     elif match.group(4):
         return f'{match.group(1)} {match.group(2)}{match.group(3)} {match.group(4)}'

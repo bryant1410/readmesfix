@@ -8,4 +8,8 @@
 
 ```
 #pragma mark - Test
+
+#define TEST test
+
+#include <iostream>
 ```
