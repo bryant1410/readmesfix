@@ -9,6 +9,7 @@ import json
 import os
 import re
 import requests
+import subprocess
 import sys
 import tempfile
 import textwrap
@@ -52,6 +53,14 @@ def pushd(new_dir):
     os.chdir(new_dir)
     yield
     os.chdir(previous_dir)
+
+
+def crlf_paths(paths):
+    paths_with_crlf = set()
+    for path in paths:
+        if 'CRLF' in subprocess.run(['file', path], check=True, stdout=subprocess.PIPE).stdout.decode('utf-8'):
+            paths_with_crlf.add(path)
+    return paths_with_crlf
 
 
 def insensitive_glob(pattern, *, recursive=False):
@@ -104,10 +113,15 @@ def main():
                         | set(insensitive_glob('**/*.markdown', recursive=True))
                     markdown_paths = {path for path in markdown_paths if os.path.isfile(path)}
                     if markdown_paths:  # Gets stuck otherwise
+                        paths_with_crlf = crlf_paths(markdown_paths)
                         with fileinput.input(markdown_paths, inplace=True) as markdown_file:
+                            use_crlf = False
                             for line in markdown_file:
                                 if fileinput.isfirstline():
                                     inside_code_block = False
+                                    use_crlf = markdown_file.filename() in paths_with_crlf
+                                if use_crlf:
+                                    line = line[:-1] + '\r\n'
                                 CODE_BLOCK_FENCE.sub(detect_code_block_fence, line)
                                 print(HEADING_WITHOUT_SPACE_RE.sub(heading_fix, line), end='')
 
