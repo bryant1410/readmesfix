@@ -98,12 +98,13 @@ def main():
                 # noinspection PyBroadException
                 try:
                     repo = git.Repo.clone_from(f'git@github.com:{repo_name}.git', '.', depth=1, origin='upstream')
-                    markdown_files_names = set(insensitive_glob('**/*.md', recursive=True)) \
+                    markdown_paths = set(insensitive_glob('**/*.md', recursive=True)) \
                         | set(insensitive_glob('**/*.mkdn?', recursive=True)) \
                         | set(insensitive_glob('**/*.mdown', recursive=True)) \
                         | set(insensitive_glob('**/*.markdown', recursive=True))
-                    if markdown_files_names:  # Gets stuck otherwise
-                        with fileinput.input(markdown_files_names, inplace=True) as markdown_file:
+                    markdown_paths = {path for path in markdown_paths if os.path.isfile(path)}
+                    if markdown_paths:  # Gets stuck otherwise
+                        with fileinput.input(markdown_paths, inplace=True) as markdown_file:
                             for line in markdown_file:
                                 if fileinput.isfirstline():
                                     inside_code_block = False
