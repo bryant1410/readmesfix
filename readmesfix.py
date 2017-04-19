@@ -126,7 +126,7 @@ def main(dataset_path):
                                     inside_code_block = False
                                     last_valid_fence = None
                                     use_crlf = markdown_file.filename() in paths_with_crlf
-                                if use_crlf:
+                                if use_crlf and line and line[-1] == '\n':
                                     line = line[:-1] + '\r\n'
                                 CODE_BLOCK_FENCE_BACK_TICKS_RE.sub(detect_code_block_back_ticks_fence, line)
                                 CODE_BLOCK_FENCE_TILDES_RE.sub(detect_code_block_tildes_fence, line)
