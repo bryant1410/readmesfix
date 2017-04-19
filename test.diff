@@ -1,0 +1,50 @@
+diff --git a/test-dos.md b/test-dos.md
+index 561bc3c..359e89c 100644
+--- a/test-dos.md
++++ b/test-dos.md
+@@ -1,10 +1,10 @@
+-#sth
++# sth
+ 
+-##sth
++## sth
+ 
+-###sth
++### sth
+ 
+-###asdfdas########
++### asdfdas########
+ 
+ ```
+ #pragma mark - Test
+@@ -14,4 +14,4 @@
+ #include <iostream>
+ ```
+ 
+-##other heading
++## other heading
+diff --git a/test.md b/test.md
+index 7c75ef1..b6cfeed 100644
+--- a/test.md
++++ b/test.md
+@@ -1,10 +1,10 @@
+-#sth
++# sth
+ 
+-##sth
++## sth
+ 
+-###sth
++### sth
+ 
+-###asdfdas########
++### asdfdas ########
+ 
+ ```
+ #pragma mark - Test
+@@ -14,4 +14,4 @@
+ #include <iostream>
+ ```
+ 
+-##other heading
++## other heading

@@ -40,6 +40,14 @@ avoid overwhelming it by making the script much faster.**
 
 To select a different dataset than `top_broken.tsv`:
 
-```
+```bash
 ./readmesfix.py --dataset dataset_file
+```
+
+## Testing
+
+To test this script:
+
+```bash
+python -m unittest discover
 ```

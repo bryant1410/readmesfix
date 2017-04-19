@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 import argparse
-import contextlib
 import csv
 import fileinput
-import git
 import glob
 import json
 import os
 import re
-import requests
 import subprocess
 import sys
 import tempfile
 import textwrap
-import tqdm
 import traceback
+
+import git
+import requests
+import tqdm
+
+import util
 
 ENV_VAR_NAME = 'GITHUB_ACCESS_TOKEN'
 if ENV_VAR_NAME not in os.environ:
@@ -42,17 +44,6 @@ def heading_fix(match):
         return f'{match.group(1)} {match.group(2)}{match.group(3)} {match.group(4)}'
     else:
         return f'{match.group(1)} {match.group(2)}{match.group(3)}'
-
-
-@contextlib.contextmanager
-def pushd(new_dir):
-    """Runs a pushd in new_dir, always returning to the previous dir after finishing.
-    
-    From: http://stackoverflow.com/a/13847807/1165181"""
-    previous_dir = os.getcwd()
-    os.chdir(new_dir)
-    yield
-    os.chdir(previous_dir)
 
 
 def crlf_paths(paths):
@@ -91,19 +82,15 @@ def create_pr(repo_name, base_branch, branch_name):
         print(f"There was an error creating the PR of {repo_name}: {response_dict}")
 
 
-def main():
+def main(dataset_path):
     global inside_code_block
 
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('--dataset', default='top_broken.tsv')
-    args = arg_parser.parse_args()
-
-    with open(args.dataset) as file:
+    with open(dataset_path) as file:
         number_of_lines = sum(1 for _ in file)
         file.seek(0)
 
         for (repo_name,) in tqdm.tqdm(csv.reader(file), total=number_of_lines):
-            with tempfile.TemporaryDirectory() as temp_dir, pushd(temp_dir):
+            with tempfile.TemporaryDirectory() as temp_dir, util.pushd(temp_dir):
                 # noinspection PyBroadException
                 try:
                     repo = git.Repo.clone_from(f'git@github.com:{repo_name}.git', '.', depth=1, origin='upstream')
@@ -142,4 +129,8 @@ def main():
                     print(traceback.format_exc())
 
 if __name__ == '__main__':
-    main()
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('--dataset', default='top_broken.tsv')
+    args = arg_parser.parse_args()
+
+    main(args.dataset)
