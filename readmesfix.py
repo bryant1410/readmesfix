@@ -25,14 +25,32 @@ AUTH_PARAMS = {'access_token': os.environ[ENV_VAR_NAME]}
 
 HEADING_WITHOUT_SPACE_RE = re.compile(r'^(#+)([^\s#])(.*?)(#+)?$')
 
-CODE_BLOCK_FENCE = re.compile(r'^```')
+CODE_BLOCK_FENCE_BACK_TICKS_RE = re.compile(r'^```')
+CODE_BLOCK_FENCE_TILDES_RE = re.compile(r'^~~~')
 
+last_valid_fence = None
 inside_code_block = False
 
 
-def detect_code_block_fence(match):
-    global inside_code_block
-    inside_code_block = not inside_code_block
+def detect_code_block_back_ticks_fence(match):
+    global inside_code_block, last_valid_fence
+    if inside_code_block:
+        if last_valid_fence == '`':
+            inside_code_block = False
+    else:
+        inside_code_block = True
+        last_valid_fence = '`'
+    return match.group(0)
+
+
+def detect_code_block_tildes_fence(match):
+    global inside_code_block, last_valid_fence
+    if inside_code_block:
+        if last_valid_fence == '~':
+            inside_code_block = False
+    else:
+        inside_code_block = True
+        last_valid_fence = '~'
     return match.group(0)
 
 
@@ -83,7 +101,7 @@ def create_pr(repo_name, base_branch, branch_name):
 
 
 def main(dataset_path):
-    global inside_code_block
+    global inside_code_block,last_valid_fence
 
     with open(dataset_path) as file:
         number_of_lines = sum(1 for _ in file)
@@ -106,10 +124,12 @@ def main(dataset_path):
                             for line in markdown_file:
                                 if fileinput.isfirstline():
                                     inside_code_block = False
+                                    last_valid_fence = None
                                     use_crlf = markdown_file.filename() in paths_with_crlf
                                 if use_crlf:
                                     line = line[:-1] + '\r\n'
-                                CODE_BLOCK_FENCE.sub(detect_code_block_fence, line)
+                                CODE_BLOCK_FENCE_BACK_TICKS_RE.sub(detect_code_block_back_ticks_fence, line)
+                                CODE_BLOCK_FENCE_TILDES_RE.sub(detect_code_block_tildes_fence, line)
                                 print(HEADING_WITHOUT_SPACE_RE.sub(heading_fix, line), end='')
 
                         if repo.index.diff(None):

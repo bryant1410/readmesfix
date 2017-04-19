@@ -24,7 +24,7 @@ index 561bc3c..359e89c 100644
 -##other heading
 +## other heading
 diff --git a/test.md b/test.md
-index 7c75ef1..b6cfeed 100644
+index a8e4819..1463d08 100644
 --- a/test.md
 +++ b/test.md
 @@ -1,10 +1,10 @@
@@ -42,9 +42,37 @@ index 7c75ef1..b6cfeed 100644
  
  ```
  #pragma mark - Test
-@@ -14,4 +14,4 @@
+@@ -14,13 +14,13 @@
  #include <iostream>
  ```
  
 -##other heading
 +## other heading
+ 
+ ~~~
+ #define TEST2 test2
+ ~~~
+ 
+-#heading3
++# heading3
+ 
+ ```
+ #pragma mark - test
+@@ -30,7 +30,7 @@
+ #pragma mark - test3
+ ```
+ 
+-#heading
++# heading
+ 
+ ~~~
+ #pragma mark - test
+@@ -40,7 +40,7 @@
+ #pragma mark - test3
+ ~~~
+ 
+-#heading2
++# heading2
+ 
+ ```
+ #define IS_LIKE code
